@@ -6,7 +6,7 @@ set -o errexit
 set -o nounset
 
 main() {
-  echo Hello, World!
+  echo "Hello, World!"
 }
 
 # Calls the main function passing all the arguments to it via '$@'
