@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-set -o errexit
-set -o nounset
-
 main() {
     case "$1" in
         square_of_sum) square_of_sum $2 ;;

@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-set -o errexit
-set -o nounset
-
 main() {
     local withoutSpaces=$(echo "$*" | sed 's/[\n\r \t]//g')
     [[ -z "$withoutSpaces" ]] && echo "Fine. Be that way!" && exit 0

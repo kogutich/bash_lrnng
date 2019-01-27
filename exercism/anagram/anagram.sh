@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-set -o errexit
-set -o nounset
-
 main() {
     local result='' word="$1"
 

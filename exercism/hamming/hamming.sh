@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-set -o errexit
-set -o nounset
-
 main() {
     [[ $# -ne 2 ]] && (echo 'Usage: hamming.sh <string1> <string2>'; exit 1;)
     [[ ${#1} -ne ${#2} ]] && (echo 'left and right strands must be of equal length'; exit 1;)
