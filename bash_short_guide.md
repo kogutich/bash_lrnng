@@ -212,161 +212,163 @@ $ echo {0,1}{0..9}
 # Exit status/code  
 это число от 0 до 255 (0 - успех)  
 Для выхода с кодом - команда `exit`  
-  
-•  
-----------------------------------  
-Control Operators (&& and ||)  
-----------------------------------  
-простейший способ управления последовательностью команд в зависимости от успеха/неуспеха предыдущей  
+   
+# Control Operators (&& and ||)  
+Простейший способ управления последовательностью команд в зависимости от успеха/неуспеха предыдущей  
+```bash
 $ mkdir d && cd d #выполнится cd, если успешно выполн cd  
 $ rm file || { echo 'Could not delete file!' >&2; exit 1; } # >&2 это в стандартный вывод для ошибок   
-лучше не перебарщивать с || и &&  
+```
+Лучше не перебарщивать с **||** и **&&**  
   
-также лучше группировать:  
-$ grep -q goodword "$file" && ! grep -q badword "$file" && { rm "$file" || echo "Couldn't delete: $file" >&2; }  
+Также лучше группировать:
+```bash
+$ grep -q goodword "$file" && ! grep -q badword "$file" && { rm "$file" || echo "Couldn't delete: $file" >&2;}
+```  
   
-группируем не только для таких простых вещей  
-например следующее:  
-  
+Группируем не только для таких простых вещей  
+Например следующее:  
+```bash
 {  
     read firstLine  
     read secondLine  
     while read otherLine; do  
         something  
     done  
-} < file  
+} < file
+```  
   
-читаем построчно файл  
+Читаем построчно файл  
   
-•  
-----------------------------------  
-Условные блоки (if, test, [[)  
-----------------------------------  
+# Условные блоки (if, test, [[)  
+
+```  
 if COMMANDS; then  
-OTHER COMMANDS  
-fi  
+    OTHER COMMANDS  
+fi
+``` 
   
-вместо fi может быть elif, если хотим несколько условий  
+Вместо **fi** может быть **elif**, если хотим несколько условий  
   
-- Команда test (или [)  
-более продвинутая аналогичная команда [[  
+## Команда test (или [)
   
+Более продвинутая аналогичная команда **[[**  
+
+```bash  
 $ if [ a = b ]  
 > then echo "a is the same as b."  
 > else echo "a is not the same as b."  
 > fi  
-a is not the same as b.  
+a is not the same as b.
+```  
   
-В отличии от [, команда [[ поддерживает pattern matching:  
+В отличии от **[**, команда **[[** поддерживает **pattern matching**: 
+```bash
 $ [[ $filename = *.png ]] && echo "$filename looks like a PNG file"  
-  
-Желательно всегда использовать "" при работе с PE, и только в редких случаях избегать, например тут:  
-  
+```
+
+Желательно всегда использовать **" "** при работе с **PE**, и только в редких случаях избегать, например тут:  
+ ```bash 
 $ foo=[a-z]* name=lhunath  
 $ [[ $name = $foo ]] && echo "Name $name matches pattern $foo"  
 Name lhunath matches pattern [a-z]*  
 $ [[ $name = "$foo" ]] || echo "Name $name is not equal to the string $foo"  
 Name lhunath is not equal to the string [a-z]*  
-  
+```
+
 В этом случае pattern matching работает если правая часть не в кавычках  
   
-Дальше следует тесты поддерживаемые [ и [[:  
------------------------------------------------  
-пример                  описание  
------------------------------------------------  
--e FILE:                True if file exists.  
--f FILE:                True if file is a regular file.  
--d FILE:                True if file is a directory.  
--h FILE:                True if file is a symbolic link.  
--p PIPE:                True if pipe exists.  
--r FILE:                True if file is readable by you.  
--s FILE:                True if file exists and is not empty.  
--t FD :                 True if FD is opened on a terminal.  
--w FILE:                True if the file is writable by you.  
--x FILE:                True if the file is executable by you.  
--O FILE:                True if the file is effectively owned by you.  
--G FILE:                True if the file is effectively owned by your group.  
-FILE -nt FILE:          True if the first file is newer than the second.  
-FILE -ot FILE:          True if the first file is older than the second.  
+### Дальше следует тесты поддерживаемые [ и [[ 
+|   пример                |                         описание                                            |
+|-------------------------|-----------------------------------------------------------------------------| 
+|**-e FILE**                |True if file exists.|  
+|**-f FILE**                |True if file is a regular file.  
+|**-d FILE**               |True if file is a directory.  
+|**-h FILE**                |True if file is a symbolic link.  
+|**-p PIPE**                |True if pipe exists.  
+|**-r FILE**                |True if file is readable by you.  
+|**-s FILE**                |True if file exists and is not empty.  
+|**-t FD**                 |True if FD is opened on a terminal.  
+|**-w FILE**                |True if the file is writable by you.  
+|**-x FILE**                |True if the file is executable by you.  
+|**-O FILE**                |True if the file is effectively owned by you.  
+|**-G FILE**                |True if the file is effectively owned by your group.  
+|**FILE -nt FILE**        |True if the first file is newer than the second.  
+|**FILE -ot FILE**          |True if the first file is older than the second.    
+|**-z STRING**             |True if the string is empty (it’s length is zero).  
+|**-n STRING**              |True if the string is not empty (it’s length is not zero).  
+|**STRING = STRING**        |True if the first string is identical to the second.  
+|**STRING != STRING**       |True if the first string is not identical to the second.  
+|**STRING < STRING**        |True if the first string sorts before the second.  
+|**STRING > STRING**        |True if the first string sorts after the second.   
+|**! EXPR**                 |Inverts the result of the expression (logical NOT).  
+|**INT -eq INT**            |True if both integers are identical.  
+|**INT -ne INT**            |True if the integers are not identical.  
+|**INT -lt INT**            |True if the first integer is less than the second.  
+|**INT -gt INT**           |True if the first integer is greater than the second.  
+|**INT -le INT**            |True if the first integer is less than or equal to the second.  
+|**INT -ge INT**            |True if the first integer is greater than or equal to the second.  
   
--z STRING:              True if the string is empty (it’s length is zero).  
--n STRING:              True if the string is not empty (it’s length is not zero).  
-STRING = STRING:        True if the first string is identical to the second.  
-STRING != STRING:       True if the first string is not identical to the second.  
-STRING < STRING:        True if the first string sorts before the second.  
-STRING > STRING:        True if the first string sorts after the second.  
+### Дальше следует тесты поддерживаемые только [
+
+|   пример                |                         описание                                            |
+|-------------------------|-----------------------------------------------------------------------------| 
+|**EXPR -a EXPR**          | True if both expressions are true (logical AND).  |
+|**EXPR -o EXPR**          | True if either expression is true (logical OR).  |
   
-! EXPR:                 Inverts the result of the expression (logical NOT).  
+### Дальше следует тесты поддерживаемые только [[
+
+|   пример                |                         описание                                            |
+|-------------------------|-----------------------------------------------------------------------------|  
+|**STRING = (or ==) PATTERN** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   |   Not string comparison like with [ (or test), but pattern matching is performed.  True if the string matches the glob pattern.  |
+| **STRING != PATTERN**        |       Not string comparison like with [ (or test), but pattern matching is performed. True if the string does not match the glob pattern. |  
+| **STRING =~ REGEX**          |     True if the string matches the regex pattern. | 
+| **( EXPR )**                 |    Parentheses can be used to change the evaluation precedence.  |
+| **EXPR && EXPR**            |    Much like the ’-a’ operator of test, but does not evaluate the second expression if the first already turns out to be false.  
+| **EXPR \|\| EXPR**           | Much like the ’-o’ operator of test, but does not evaluate the second expression if the first already turns out to be true. |
   
-INT -eq INT:            True if both integers are identical.  
-INT -ne INT:            True if the integers are not identical.  
-INT -lt INT:            True if the first integer is less than the second.  
-INT -gt INT:            True if the first integer is greater than the second.  
-INT -le INT:            True if the first integer is less than or equal to the second.  
-INT -ge INT:            True if the first integer is greater than or equal to the second.  
+Если пишите скрипт на bash, лучше использовать **[[**  
   
-Дальше следует тесты поддерживаемые только [:  
------------------------------------------------  
-пример                  описание  
------------------------------------------------  
-EXPR -a EXPR:           True if both expressions are true (logical AND).  
-EXPR -o EXPR:           True if either expression is true (logical OR).  
+# Conditional Loops (while, until and for)  
+
+**while** command:               Повторяет пока команда успешно завершается (exit code is 0).
   
-Дальше следует тесты поддерживаемые только [[:  
------------------------------------------------  
-пример                           описание  
------------------------------------------------  
-STRING = (or ==) PATTERN:        Not string comparison like with [ (or test), but pattern matching is performed.  
-                                 True if the string matches the glob pattern.  
-STRING != PATTERN:               Not string comparison like with [ (or test), but pattern matching is performed. True  
-                                 if the string does not match the glob pattern.  
-STRING =~ REGEX:                 True if the string matches the regex pattern.  
-( EXPR ):                        Parentheses can be used to change the evaluation precedence.  
-EXPR && EXPR:                    Much like the ’-a’ operator of test, but does not evaluate the second expression if the first  
-                                 already turns out to be false.  
-EXPR || EXPR:                    Much like the ’-o’ operator of test, but does not evaluate the second expression if the first  
-                                 already turns out to be true.  
-------------------------------------------------  
-  
-Если пишите скрипт на bash, лучше использовать [[  
-  
-•  
-----------------------------------  
-Conditional Loops (while, until and for)  
-----------------------------------  
-• while command:               Повторяет пока команда успешно завершается (exit code is 0).  
-• until command:               Повторяет пока команда неуспешно завершается (exit code is not 0).  
-• for variable in words:       Цикл по списку  
-• for (( expression; expression; expression )): Starts by evaluating the first arithmetic expression; repeats the loop  
+**until** command:               Повторяет пока команда неуспешно завершается (exit code is not 0).  
+
+**for** variable **in** words:       Цикл по списку  
+
+**for ((** expression; expression; expression **))**: Starts by evaluating the first arithmetic expression; repeats the loop  
 so long as the second arithmetic expression is successful; and at the end of each loop evaluates the third arithmetic  
 expression.  
   
-После каждого идет do и в конце done  
-Есть break и continue  
+После каждого идет **do** и в конце **done**  
+Есть **break** и **continue**  
   
 Примеры:  
-  
+```bash
 $ while true  
 > do echo "Infinite loop"  
-> done  
-  
+> done
+``` 
+```bash
 $ while ! ping -c 1 -W 1 1.1.1.1; do  
 > echo "still waiting for 1.1.1.1"  
 > sleep 1  
-> done  
-  
+> done
+```  
+```bash
 $ for (( i=10; i > 0; i-- ))  
 > do echo "$i empty cans of beer."  
-> done  
-  
+> done
+``` 
+```bash  
 $ for i in {10..1}  
 > do echo "$i empty cans of beer."  
-> done  
+> done
+``` 
   
-•  
-----------------------------------  
-Choices (case and select)  
-----------------------------------  
+# Choices (case and select)  
+```bash  
 case $LANG in  
     en*) echo 'Hello!' ;;  
     fr*) echo 'Salut!' ;;  
@@ -376,14 +378,15 @@ case $LANG in
     es*) echo 'Hola!' ;;  
     C|POSIX) echo 'hello world' ;;  
     *) echo 'I do not speak your language.' ;;  
-esac  
-  
+esac
+```  
+```bash  
 case $var in  
     foo|bar|more) ... ;;  
-esac  
+esac
+```
   
-работает с globs  
-также есть select  
+Работает с **globs**, также есть **select** (помимо case)  
   
 # Arrays  
 > An **array** is a numbered list of strings: It maps integers to strings  
