@@ -1,7 +1,7 @@
 # Bash: Bourne Again Shell  
 **2 режима:** интерактивный и неинтерактивный (скрипты)  
   
-**bash** распознает каждое слово как аргумент, чтобы, например, не удалить лишнее, используйте кавычки: 
+**bash** распознает каждое слово как аргумент, чтобы, например, не удалить лишнее, используйте кавычки:
 ```rm "one two three four.mp3"```, иначе  попытается удалить 4 файла  
 также нужны пробелы в следующей ситуации: ```[ -f file ]``` вместо ```[-f file]``` так как [ - это команда, все остальное аргументы  
   
@@ -64,9 +64,13 @@ $ foo=bar; echo "Foo is $foo"
 > **bash** не типизирован, но есть разные виды переменных  
   
 **Array**: ```declare -a variable```: Массив строк  
+
 **Associative array**: ```declare -A variable```: Ассоциативный массив строк (bash 4.0 or higher)  
-**Integer**: ```declare -i variable```: Присвоение к этому числу автоматически вызывает Arithmetic Evaluation  
+
+**Integer**: ```declare -i variable```: Присвоение к этому числу автоматически вызывает Arithmetic Evaluation
+  
 **Read Only**: ```declare -r variable```
+
 **Export**: ```declare -x variable```: Будет унаследовано дочерними процессами  
   
 *Примеры :*
@@ -116,96 +120,98 @@ image
 ```
   
   
-•  
-----------------------------------  
-Паттерны  
-----------------------------------  
-есть три вида - globs, extended globs, regular expression (в основном в скриптах для проверки ввода юзера)  
-для выборки файлов только globs и ext globs  
+ 
+# Паттерны  
+Есть три вида - ```globs```, ```extended globs```, ```regular expression``` (в основном в скриптах для проверки ввода юзера).
+Для выборки файлов только *globs* и *ext globs*.  
   
-Glob Patterns  
-------------------  
-важны (can be used to match filenames or other strings)  
-состоят из символов и метасимволов:  
-• *: Matches any string, including the null string.  
-• ?: Matches any single character.  
-• [...]: Matches any one of the enclosed characters.  
+## Glob Patterns  
+Важны (can be used to match filenames or other strings), **состоят из символов и метасимволов:**  
+- **\*** Matches any string, including the null string.  
+- **?** Matches any single character.  
+- **[. . .]** Matches any one of the enclosed characters.  
   
-Они неявно содержат якоря с двух сторон, то есть a* не сматчит cat, но ca* сматчит  
+Они неявно содержат якоря с двух сторон, то есть ```a*``` не сматчит **cat**, но ```ca*``` сматчит  
+```bash
 $ ls  
-a abc b c  
-$ echo *  
-a abc b c  
-$ echo a*  
-a abc  
+a abc b c
+$ echo *
+a abc b c
+$ echo a*
+a abc
+```
   
-Bash видит glob, расширяет (expand) его, превращая в список, то есть echo a* -> echo a abc  
+> Bash видит glob, расширяет (expand) его, превращая в список, то есть echo a* -> echo a abc  
 Когда bash матчит filenames, то * и ? не могут в слэш (/), то есть матчят до него  
 например */bin сматчится на foo/bin, но не сможет на /usr/local/bin  
   
-Для обхода вместо ls лучше использовать glob *, пример:  
+Для обхода вместо ls лучше использовать glob *, пример:
+```bash
 $ touch "a b.txt"  
 $ ls  
 a b.txt  
 $ for file in `ls`; do rm "$file"; done  
-rm: cannot remove `a': No such file or directory  
-rm: cannot remove `b.txt': No such file or directory  
+rm: cannot remove 'a': No such file or directory  
+rm: cannot remove 'b.txt': No such file or directory  
 $ for file in *; do rm "$file"; done  
-$ ls  
+$ ls
+```
   
-glob используется не только для матчинга filenames, пример:  
+glob используется не только для матчинга filenames, пример:
+```bash
 $ filename="some.jpg"  
 $ if [[ $filename = *.jpg ]]; then  
-> echo "tru"  
+> echo "true"  
 > fi  
-tru  
+true
+```
   
-Extended Globs  
------------------  
-По умолчанию могут быть выключены, включаются через: $ shopt -s extglob  
+## Extended Globs  
+По умолчанию могут быть выключены, включаются через: ```$ shopt -s extglob```
   
-• ?(list): Matches zero or one occurrence of the given patterns.  
-• *(list): Matches zero or more occurrences of the given patterns.  
-• +(list): Matches one or more occurrences of the given patterns.  
-• @(list): Matches one of the given patterns.  
-• !(list): Matches anything but the given patterns.  
+- **?(list)**: Matches zero or one occurrence of the given patterns.  
+- **\*(list)**: Matches zero or more occurrences of the given patterns.  
+- **+(list)**: Matches one or more occurrences of the given patterns.  
+- **@(list)**: Matches one of the given patterns.  
+- **!(list)**: Matches anything but the given patterns.  
   
-list внутри - список globs или ext globs, разделенные |  
-пример:  
+**list** внутри - список **globs** или **ext globs**, разделенные **|**  
+
+Пример:  
+```bash
 $ ls  
 names.txt tokyo.jpg california.bmp  
 $ echo !(*jpg|*bmp)  
-names.txt  
+names.txt
+```  
   
-Regular Expressions  
---------------------  
-похожи на glob patterns, но не могут использоваться для filenames matching  
-с версии 3.0 Bash поддерживает оператор =~ для [[  
-этот оператор матчит строку с этим регэкспом и воззвращает 0("true") если матч, 1("false") если нет и 2 если ошибка  
-bash использует Extended Regular Expression (ERE) диалект  
+## Regular Expressions  
+Похожи на **glob patterns**, но не могут использоваться для **filenames matching**
+С версии 3.0 Bash поддерживает оператор ```=~``` для ```[[```  
+Этот оператор матчит строку с этим регэкспом и возвращает ``0("true")`` если матч, ``1("false")`` если нет и ``2``, если ошибка
+
+bash использует **Extended Regular Expression** (ERE) диалект  
 http://mywiki.wooledge.org/RegularExpression  
   
-Brace Expansion  
---------------------  
-по сути это не относится к паттернам, они расширяются ко всевозможным вариантам, это не матчинг, а просто все варианты (прямое произведение)  
-  
+## Brace Expansion  
+По сути это не относится к паттернам, они расширяются ко всевозможным вариантам, это не матчинг, а просто все варианты (прямое произведение)  
+```bash
 $ echo th{e,a}n  
 then than   
 $ echo {/home/*,/root}/.*profile  
 /home/axxo/.bash_profile /home/lhunath/.profile /root/.bash_profile /root/.profile  
-$ echo {1..9} # тут нельзя variables, только явно числа, умеет в обратную сторону - {9..1}  
+$ echo {1..9} # тут нельзя variables, только константы, умеет в обратную сторону - {9..1}  
 1 2 3 4 5 6 7 8 9  
 $ echo {0,1}{0..9}  
 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19  
-  
-похоже на glob, но возвращает не filenames, а все что может, но происходит до filename expansion,  
-второй пример показывает это (комбинацию с glob), где уже находятся реальные файлы  
-получается: echo /home/*/.*profile /root/.*profile  
-  
-•  
-Exit status/code  
+```
+Похоже на glob, но возвращает не filenames, а все что может, но происходит до filename expansion,  
+второй пример показывает это (комбинацию с glob), где уже находятся реальные файлы, 
+получается: ```echo /home/*/.*profile /root/.*profile```  
+   
+# Exit status/code  
 это число от 0 до 255 (0 - успех)  
-Для выхода с кодом - команда exit  
+Для выхода с кодом - команда `exit`  
   
 •  
 ----------------------------------  
